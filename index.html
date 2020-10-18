@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>ShiroUmi</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta property="og:type" content="website">
+<meta property="og:title" content="ShiroUmi">
+<meta property="og:url" content="http://example.com/index.html">
+<meta property="og:site_name" content="ShiroUmi">
+<meta property="og:locale">
+<meta property="article:author" content="Shiro-umi">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="ShiroUmi" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 5.2.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">ShiroUmi</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main">
+  
+    <article id="post-Java_基本数据类型-二进制表示" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2020/10/18/Java_%E5%9F%BA%E6%9C%AC%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B-%E4%BA%8C%E8%BF%9B%E5%88%B6%E8%A1%A8%E7%A4%BA/" class="article-date">
+  <time datetime="2020-10-18T00:47:35.000Z" itemprop="datePublished">2020-10-18</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2020/10/18/Java_%E5%9F%BA%E6%9C%AC%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B-%E4%BA%8C%E8%BF%9B%E5%88%B6%E8%A1%A8%E7%A4%BA/">Java_基本数据类型&amp;二进制表示</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="数据存储单位"><a href="#数据存储单位" class="headerlink" title="数据存储单位"></a>数据存储单位</h1><h2 id="bit-比特-amp-byte-字节"><a href="#bit-比特-amp-byte-字节" class="headerlink" title="bit(比特)&amp;byte(字节)"></a>bit(比特)&amp;byte(字节)</h2><p><code>bit</code>叫做<code>位</code>或者<code>比特</code>，在计算机中数据都是以<code>0</code>和<code>1</code>存储的，一个<code>bit</code>就对应一位数字<br><code>byte</code>叫做<code>字节</code>，是比<code>bit</code>更高位的计量单位</p>
+<ul>
+<li><code>1byte = 8bits</code></li>
+</ul>
+<h2 id="java中的基本数据类型"><a href="#java中的基本数据类型" class="headerlink" title="java中的基本数据类型"></a>java中的基本数据类型</h2><table>
+<thead>
+<tr>
+<th align="left">catagory</th>
+<th align="left">bytes</th>
+<th align="left">bits</th>
+<th align="left">范围($2^n$)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">boolean</td>
+<td align="left">1</td>
+<td align="left">8</td>
+<td align="left">$(-2)^7$ ～ $2^7-1$</td>
+</tr>
+<tr>
+<td align="left">char</td>
+<td align="left">2</td>
+<td align="left">16</td>
+<td align="left">$(-2)^{15}$ ～ $2^{15}-1$</td>
+</tr>
+<tr>
+<td align="left">—-</td>
+<td align="left">—-</td>
+<td align="left">—-</td>
+<td align="left">—-</td>
+</tr>
+<tr>
+<td align="left">byte</td>
+<td align="left">1</td>
+<td align="left">8</td>
+<td align="left">$(-2)^7$ ～ $2^7-1$</td>
+</tr>
+<tr>
+<td align="left">short</td>
+<td align="left">2</td>
+<td align="left">16</td>
+<td align="left">$(-2)^{15}$ ～ $2^{15}-1$</td>
+</tr>
+<tr>
+<td align="left">int</td>
+<td align="left">4</td>
+<td align="left">32</td>
+<td align="left">$(-2)^{31}$ ～ $2^{31}-1$</td>
+</tr>
+<tr>
+<td align="left">float</td>
+<td align="left">4</td>
+<td align="left">32</td>
+<td align="left">$(-2)^{31}$ ～ $2^{31}-1$</td>
+</tr>
+<tr>
+<td align="left">long</td>
+<td align="left">8</td>
+<td align="left">64</td>
+<td align="left">$(-2)^{63}$ ～ $2^{63}-1$</td>
+</tr>
+<tr>
+<td align="left">double</td>
+<td align="left">8</td>
+<td align="left">64</td>
+<td align="left">$(-2)^{63}$ ～ $2^{63}-1$</td>
+</tr>
+</tbody></table>
+<p>仔细观察可以发现除了较为特殊的<code>boolean</code>和<code>char</code>之外，其余的类型按占空间从小到大排列，占用控件为：</p>
+<p>$2^8$ -&gt; $2^{16}$ -&gt; $2^{32}$ -&gt; $2^{64}$</p>
+<p>对于<code>char</code>，在java中无论要表示哪种字符，一个<code>char</code>一定占用<code>2bytes</code>，因为在java中使用<code>Unicode字符集</code>进行<code>utf-16</code>可变长编码，而<code>utf-16</code>形如:<code>u\8D63</code>，可以看到一个<code>utf-16</code>字符占用了4个十六进制数，而$2^4 =16$，且2为二进制中的一个bit（一位），所以上述<code>utf-16</code>字符共占用了16bits，又因为前面提到的<code>1byte = 8bits</code>，所以一个<code>char</code>只会占用<code>2bytes</code>的空间</p>
+<p>这也就解释了为什么一个emoji会占用掉2个char，因为一个<code>utf-16</code>无法完整表示一个emoji表情</p>
+<h2 id="为什么1个byte是8bits缺只能表示-2-7-量级？"><a href="#为什么1个byte是8bits缺只能表示-2-7-量级？" class="headerlink" title="为什么1个byte是8bits缺只能表示$2^7$量级？"></a>为什么1个byte是8bits缺只能表示$2^7$量级？</h2><p>要弄懂这个问题就非常有必要研究一下计算机对数据的编码方式<br>原码，反码，补码共同导致了一个<code>byte</code>的表示区间限制在$(-2)^7$ ～ $2^7-1$中</p>
+<h3 id="原码，反码，补码"><a href="#原码，反码，补码" class="headerlink" title="原码，反码，补码"></a>原码，反码，补码</h3><p>为了方便电路逻辑运算，在计算机中只有加法而没有减法，为了实现减法则需要把人类认知的减法转换成计算机中的加法:<br><code> 1-1 = 1+(-1)</code><br>因为符号的存在，所以需要在二进制位中特殊化一个bit作为符号标志位，一个bit只可能为0或者1，正好满足表示正负的需求</p>
+<p>所以在计算机中，一个8bit数<code>1</code>的原码会被表示成: <code>原 -&gt; 000000001</code>，而<code>-1</code>会被表示为<code>原 -&gt; 10000001</code> </p>
+<h3 id="原码"><a href="#原码" class="headerlink" title="原码"></a>原码</h3><p>所谓源码就是没有经过任何处理的原始编码：<br>以8bit数字<code>1</code>和<code>-1</code>举例: </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">(<span class="number">1</span>)  -&gt; 原码 -&gt; <span class="number">0</span> <span class="number">000</span> <span class="number">0001</span></span><br><span class="line">(-<span class="number">1</span>) -&gt; 原码 -&gt; <span class="number">1</span> <span class="number">000</span> <span class="number">0001</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="反码"><a href="#反码" class="headerlink" title="反码"></a>反码</h3><p>既然可以表示负数了，那么是不是意味着直接将<code>1</code>和<code>-1</code>的编码按位相加就能得到正确的结果呢？<br>其实不然: </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">     (<span class="number">1</span>) -&gt; 原码 -&gt; <span class="number">0</span> <span class="number">000</span> <span class="number">0001</span></span><br><span class="line">    (-<span class="number">1</span>) -&gt; 原码 -&gt; <span class="number">1</span> <span class="number">000</span> <span class="number">0001</span></span><br><span class="line">(<span class="number">1</span>)+(-<span class="number">1</span>) -&gt; 原码 -&gt; <span class="number">1</span> <span class="number">000</span> <span class="number">0010</span> == Oct(-<span class="number">2</span>) </span><br></pre></td></tr></table></figure>
+
+<p>心里一个大写的 <strong>WTF</strong>，这就意味着需要计算机进行额外的操作来规避<code>正负数相加</code>产生的问题<br>但是留给逻辑电路的运算方法选择已经不多了，无非就是<code>&amp;&amp; || !</code>和他们之间的组合，其中<code>&amp;&amp;</code>和<code>||</code>是二元运算符，一定会引入其他的操作数，这样以来结果会变得不可预知，所以剩下来的操作就只有<code>!</code>了 </p>
+<p>对于二进制运算我们应该知道，一个<code>n bits</code>二进制数·<code>x</code>按位做<code>!</code>运算的话，结果等于 $2^n-x$，也就是说一个8bits表示的<code>有符号</code>数字<code>-1</code>按位做<code>!</code>运算结果为<code>-126</code>，而<code>-126-1</code>正好等于<code>-127</code>(有符号8bits最大值)，而继续套用上面的公式，对<code>-127</code>做<code>!</code>运算就能直接得到结果<code>-0</code>，正数同理可以得到结果<code>+0</code> </p>
+<p>到这一步就已经明朗了，如果能得到一个相对最大值互补的结果，对它进行<code>!</code>操作就能得到正确的值，则对于<code>1-1</code>的例子，不难发现对<code>-1</code>做<code>!</code>后与<code>1</code>相加，再做<code>!</code>就能得到正确的结果:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">     (<span class="number">1</span>) -&gt; 原码 -&gt; <span class="number">1</span> <span class="number">000</span> <span class="number">0001</span></span><br><span class="line">    (-<span class="number">1</span>) -&gt; 反码 -&gt; <span class="number">1</span> <span class="number">111</span> <span class="number">1110</span></span><br><span class="line">(<span class="number">1</span>)+(-<span class="number">1</span>) -&gt; ？？ -&gt; <span class="number">1</span> <span class="number">111</span> <span class="number">1111</span> == -<span class="number">127</span></span><br><span class="line">            取反 -&gt; <span class="number">1</span> <span class="number">000</span> <span class="number">0000</span> = (-<span class="number">0</span>)</span><br></pre></td></tr></table></figure>
+<p>但源码和反码相加会导致类型的矛盾，所以约定:<br><strong>正数的反码等于原码，负数的反码为源码除符号位取反</strong><br>这样就变成了: </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">     (<span class="number">1</span>) -&gt; 反码 -&gt; <span class="number">1</span> <span class="number">000</span> <span class="number">0001</span></span><br><span class="line">    (-<span class="number">1</span>) -&gt; 反码 -&gt; <span class="number">1</span> <span class="number">111</span> <span class="number">1110</span></span><br><span class="line">(<span class="number">1</span>)+(-<span class="number">1</span>) -&gt; 反码 -&gt; <span class="number">1</span> <span class="number">111</span> <span class="number">1111</span> == -<span class="number">127</span></span><br><span class="line">            原码 -&gt; <span class="number">1</span> <span class="number">000</span> <span class="number">0000</span> = (-<span class="number">0</span>)</span><br></pre></td></tr></table></figure>
+
+<p>DONE !</p>
+<h3 id="补码"><a href="#补码" class="headerlink" title="补码"></a>补码</h3><p>问题虽然解决了，但并不完美<br>不难发现，在计算过程中<code>0</code>这个数存在两种表示<code>+0</code>和<code>-0</code>，数学老师跟我说过<code>0</code>没有符号，这个解决方式显然不够完美<br>所以这个时候<code>补码</code>就出现了，<code>补码</code>就是在反码的基础上<code>+1</code>，但正数的补码和原码相同:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">     (<span class="number">1</span>) -&gt; 补码 -&gt;   <span class="number">0</span> <span class="number">000</span> <span class="number">0001</span></span><br><span class="line">    (-<span class="number">1</span>) -&gt; 补码 -&gt;   <span class="number">1</span> <span class="number">111</span> <span class="number">1111</span></span><br><span class="line">(<span class="number">1</span>)+(-<span class="number">1</span>) -&gt; 补码 -&gt; <span class="number">1</span> <span class="number">0</span> <span class="number">000</span> <span class="number">0000</span> == <span class="number">0</span></span><br><span class="line"></span><br><span class="line">    (-<span class="number">1</span>) -&gt; 补码 -&gt;   <span class="number">1</span> <span class="number">111</span> <span class="number">1111</span> </span><br><span class="line">  (-<span class="number">127</span>) -&gt; 补码 -&gt;   <span class="number">1</span> <span class="number">000</span> <span class="number">0001</span></span><br><span class="line">(<span class="number">1</span>)+(-<span class="number">1</span>) -&gt; 补码 -&gt; <span class="number">1</span> <span class="number">1</span> <span class="number">000</span> <span class="number">0000</span> == (-<span class="number">128</span>)</span><br></pre></td></tr></table></figure>
+<p>经过这样的计算，最高位因进位被舍弃，原先的<code>-0</code>就变成了<code>-128</code>，这就是正区间会少一个数的原因</p>
+<p>PERFECT DONE !</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2020/10/18/Java_%E5%9F%BA%E6%9C%AC%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B-%E4%BA%8C%E8%BF%9B%E5%88%B6%E8%A1%A8%E7%A4%BA/" data-id="ckgee7u2l00001f8uaoi0e2pu" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">October 2020</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2020/10/18/Java_%E5%9F%BA%E6%9C%AC%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B-%E4%BA%8C%E8%BF%9B%E5%88%B6%E8%A1%A8%E7%A4%BA/">Java_基本数据类型&amp;二进制表示</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 Shiro-umi<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>
