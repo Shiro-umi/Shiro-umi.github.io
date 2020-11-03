@@ -259,7 +259,7 @@
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-11-03 11:46:08" itemprop="dateModified" datetime="2020-11-03T11:46:08+08:00">2020-11-03</time>
+                <time title="修改时间：2020-11-03 17:41:48" itemprop="dateModified" datetime="2020-11-03T17:41:48+08:00">2020-11-03</time>
               </span>
 
           
@@ -275,85 +275,15 @@
       
           <p>作为Android四大组件中最为基础的组件，Ativity承担着应用和用户交互的基本任务。</p>
 <p>Activity是应用与用户进行交互的单一焦点，基本所有Activity都与用户进行交互。所以Activity负责创建一个<code>Window</code>，可以通过<code>setContentView</code>方法加载UI。<br>Activity经常以<code>全屏窗口</code>向用户展示用户界面，或者可以通过在<code>theme</code>中设置<code>windowIsFloating</code>flag使之变为一个<code>悬浮窗口</code>，还可以启用<code>多窗口</code>模式，或将窗口<code>嵌入其他窗口</code>中。 </p>
-<h1 id="生命周期"><a href="#生命周期" class="headerlink" title="生命周期"></a>生命周期</h1><p>Activity在系统中以<code>activity stack</code>的形式进行管理。当一个新的activity启动的时候，一般情况下会被放入当前<code>activity stack</code>的栈顶，成为<code>running activity</code>。一般情况下前一个activity依旧会存于与栈中，但是只要栈顶activity还存在就不会回到前台。<br>注意在屏幕上看到的Activity可能属于不同的<code>activity stack</code>。 </p>
-<h2 id="Activity的生命周期方法"><a href="#Activity的生命周期方法" class="headerlink" title="Activity的生命周期方法"></a>Activity的生命周期方法</h2><p>老生常谈的问题，Activity的常用生命周期方法一共有7个： </p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Activity</span> <span class="keyword">extends</span> <span class="title">ApplicationContext</span> </span>&#123; </span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onCreate</span><span class="params">(Bundle savedInstanceState)</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onStart</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onRestart</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onResume</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onPause</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onStop</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onDestroy</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>其中除了<code>onRestart()</code>，其余6个生命周期方法均两两成为一对：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">onCreate() -&gt; onResume()</span><br><span class="line">onStart() -&gt; onStop()</span><br><span class="line">onResume() -&gt; onPause()</span><br></pre></td></tr></table></figure>
-
-<p>给出Activity的生命周期图导航图：<br><img src="activity_lifecycle.png" alt="activity_lifecycle"><br>一张看了无数遍的图，但是其中的细节是经常容易忽略的：</p>
-<ul>
-<li><code>onStop()</code>方法是否执行取决于该activity是否可见。</li>
-<li><code>onRestart()</code>方法实际上是和<code>onCreate()</code>方法互补的，activity从无到有的情况回调用<code>onCreate()</code>方法，而重新启动(还没有被销毁)的activity重新回到前台会调用到<code>onRestart()</code>方法。</li>
-</ul>
-<h2 id="Activity的生命周期状态"><a href="#Activity的生命周期状态" class="headerlink" title="Activity的生命周期状态"></a>Activity的生命周期状态</h2><p>根据activity的7个主要生命周期方法，将<strong>activity的生命周期状态</strong>归纳为3种：</p>
-<ol>
-<li>**entire lifrtime :**对应<code>onCreate()</code>到<code>onDestory()</code>中间的任意时刻和状态，此状态区间内不一定对用户可见。</li>
-<li>**visible lifrtime :**对应<code>onStart()</code>到<code>onStop()</code>中间的任意时刻和状态，此状态区间内对用户可见，但不一定可以进行交互。</li>
-<li>**foreground lifrtime :**对应<code>onResume()</code>到<code>onPause()</code>中间的任意时刻和状态，此状态区间内对用户可见，并且可交互。</li>
-</ol>
-<h3 id="Activity的非正常退出-系统kill"><a href="#Activity的非正常退出-系统kill" class="headerlink" title="Activity的非正常退出(系统kill)"></a>Activity的非正常退出(系统kill)</h3><p>前面提到过，activity在正常情况下退出会调用<code>finish()</code>方法，调用完整的销毁生命周期:<code>onPause() -&gt; onStop() -&gt; onDestory()</code>，但当activiy不可见的时候，可能随时被系统kill以释放内存，这个时候并不会经历完成整的销毁生命周期，如下表所示： </p>
-<table>
-<thead>
-<tr>
-<th align="left">方法</th>
-<th align="left">调用时机</th>
-<th align="left">是否可以被kill</th>
-</tr>
-</thead>
-<tbody><tr>
-<td align="left">onCreate()</td>
-<td align="left">activity创建</td>
-<td align="left">No</td>
-</tr>
-<tr>
-<td align="left">onStart()</td>
-<td align="left">activity对用户可见</td>
-<td align="left">No</td>
-</tr>
-<tr>
-<td align="left">onResume()</td>
-<td align="left">activity可交互</td>
-<td align="left">No</td>
-</tr>
-<tr>
-<td align="left">onPause()</td>
-<td align="left">activity不可交互</td>
-<td align="left"><strong>Android 3之后不能被kill</strong></td>
-</tr>
-<tr>
-<td align="left">onStop()</td>
-<td align="left">activity不可见</td>
-<td align="left">Yes</td>
-</tr>
-<tr>
-<td align="left">onDestory()</td>
-<td align="left">activity销毁</td>
-<td align="left">Yes</td>
-</tr>
-<tr>
-<td align="left">其中我们可以看到<code>onPause()</code>方法在Android3之后不再可被系统kill掉，也就是说，如果需要持久化用户数据以便后续使用或恢复状态，在<code>onPause()</code>中全部完成最为保险。</td>
-<td align="left"></td>
-<td align="left"></td>
-</tr>
-</tbody></table>
-<p> 而自从Android P开始，用于保存临时数据的回调<code>onSaveInstanseState()</code>延迟到<code>onStop()</code>结束之后调用，这也就意味着在更晚的生命周期方法<code>onStop()</code>之后进行<strong>数据保存</strong>和<strong>完成fragment transaction</strong>也是安全的。</p>
-<h2 id="Configuration-Changes导致的生命周期变化"><a href="#Configuration-Changes导致的生命周期变化" class="headerlink" title="Configuration Changes导致的生命周期变化"></a>Configuration Changes导致的生命周期变化</h2><p>Configuration指的是由<code>Configuration</code>类所定义的属性。<br>当这个设置发生变化的时候，整个应用的UI都需要同步进行更新以适应新的配置。Activity拥有响应``configuration chages的回调。<br><code>Configuration Changes</code>包括如下一些情况:</p>
-<ul>
-<li>屏幕旋转</li>
-<li>变更语言</li>
-<li>其他一些情况<br>当出现<code>configuration changes</code>的时候会导致当前的activity通过正常的生命周期销毁。若果这个activity处于<code>visible</code>状态，则<code>onDestory()</code>执行完之后会立刻重建，<code>onCreate(Bundle)</code>中传入的<code>savedInstanceState</code>就由销毁之前的<code>onSaveInstanceState()</code>回调生成。</li>
-</ul>
-<p>应用中可以通过设置<code>android:configChanges</code>来避免因<code>configuration changes</code>导致的activity重建，此时会调用回调方法<code>onConfigurationChanged()</code>来适配。<br>注意:<br>若该变化影响到了配置之外的属性，则不会调用<code>onConfigurationChanged()</code>回调，会直接对activity进行重建。</p>
-<h2 id="ActivityResult影响生命周期"><a href="#ActivityResult影响生命周期" class="headerlink" title="ActivityResult影响生命周期"></a>ActivityResult影响生命周期</h2><p>一般情况下我们通过<code>startActivity()</code>方法启动一个activity，但我们需要被启动的activity返回一个结果给前一个activity时，就需要使用到<code>startActivityForResult()</code>方法。<br>当被启动的activity还存在时，就可以调用<code>setResult()</code>方法将结果返回给启动它的activity，而启动它的activity会调用到<code>onActivityResult()</code>方法接收数据。<br>需要注意的是<code>onActivityResult()</code>的调用是在整个activity生命周期之前的，也就是说调用顺序是<code>onActivityResult() -&gt; onRestart() -&gt; onStart() -&gt; onResume()</code></p>
-<h2 id="Activity进程生命周期"><a href="#Activity进程生命周期" class="headerlink" title="Activity进程生命周期"></a>Activity进程生命周期</h2><p>对于Android系统来说每个<code>application process</code>应该尽可能维持更长时间的存活，但实际上有很多时候都不得不杀死老进程来释放内存资源。系统决定销毁哪个<code>process</code>与它当前是否正在与用户进行交互是密切相关的。</p>
-<ul>
-<li>**Foreground Activity:**如果一个Activity在前台(位于栈顶)，则该activity的状态为<code>active</code>或<code>running</code>。这个状态的activity通常是正在与用户发生交互的。这种情况下如果不出现<code>OOM</code>系统不回去kill这个进程。</li>
-<li>**Visiable Activity:**如果一个activity 失去焦点但仍然对用户可见，则该activity的状态为<code>visible</code>。可能会由一个<code>non-full-sized</code>或者<code>透明</code>的activity在原activity之上获得焦点导致。这种activity一定是<code>alive</code>的。这种情况下如果内存不足以保持<code>foreground activity</code>存活，则会被系统kill。</li>
-<li>**Background Activity:**当一个activity对用户完全不可见的时候，状态为<code>stopped</code>或<code>hidden</code>，当系统内存不足的时候，可以以<code>call finish</code>或<code>kill process</code>的形式终结一个activity，使它的状态变为<code>destoryed</code>。回收之前回调用<code>onSaveInstanceState(Bundle)</code>方法对用户状态进行保存，当用户回到被杀死的界面时，在<code>onCreate()</code>方法对其状态进行恢复。</li>
-<li>**Empty Process:**这里要着重强调一下，空进程并不代表进程中没有执行任何任务。空进程的定义是，在进程中没有任何一个存活的<code>activity</code>,<code>service</code>或者<code>broadcastReciever</code>。所以如果需要执行后台任务的话一定要将任务放到四大组件中。</li>
-</ul>
-
+<p>Activity在系统中以<code>activity stack</code>的形式进行管理。当一个新的activity启动的时候，一般情况下会被放入当前<code>activity stack</code>的栈顶，成为<code>running activity</code>。一般情况下前一个activity依旧会存于与栈中，但是只要栈顶activity还存在就不会回到前台。<br>注意在屏幕上看到的Activity可能属于不同的<code>activity stack</code>。 </p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2020/11/01/Android-Activity%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -403,7 +333,7 @@
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-11-03 12:15:06" itemprop="dateModified" datetime="2020-11-03T12:15:06+08:00">2020-11-03</time>
+                <time title="修改时间：2020-11-03 17:40:57" itemprop="dateModified" datetime="2020-11-03T17:40:57+08:00">2020-11-03</time>
               </span>
 
           
@@ -417,7 +347,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <h1 id="数据存储单位"><a href="#数据存储单位" class="headerlink" title="数据存储单位"></a>数据存储单位</h1><h2 id="bit-比特-amp-byte-字节"><a href="#bit-比特-amp-byte-字节" class="headerlink" title="bit(比特)&amp;byte(字节)"></a>bit(比特)&amp;byte(字节)</h2><p><code>bit</code>叫做<code>位</code>或者<code>比特</code>，在计算机中数据都是以<code>0</code>和<code>1</code>存储的，一个<code>bit</code>就对应一位数字<br><code>byte</code>叫做<code>字节</code>，是比<code>bit</code>更高位的计量单位</p>
+          <h2 id="bit-比特-amp-byte-字节"><a href="#bit-比特-amp-byte-字节" class="headerlink" title="bit(比特)&amp;byte(字节)"></a>bit(比特)&amp;byte(字节)</h2><p><code>bit</code>叫做<code>位</code>或者<code>比特</code>，在计算机中数据都是以<code>0</code>和<code>1</code>存储的，一个<code>bit</code>就对应一位数字<br><code>byte</code>叫做<code>字节</code>，是比<code>bit</code>更高位的计量单位</p>
 <ul>
 <li><code>1byte = 8bits</code></li>
 </ul>
