@@ -16,7 +16,7 @@
 <meta property="og:locale">
 <meta property="og:image" content="https://shiro-umi.github.io/2020/11/01/Android-Activity%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F/activity_lifecycle.png">
 <meta property="article:published_time" content="2020-11-01T10:57:22.000Z">
-<meta property="article:modified_time" content="2020-11-03T03:29:45.495Z">
+<meta property="article:modified_time" content="2020-11-03T03:46:08.912Z">
 <meta property="article:author" content="Shiro-umi">
 <meta property="article:tag" content="Android Activity">
 <meta name="twitter:card" content="summary">
@@ -149,27 +149,21 @@
 <td align="left">activity销毁</td>
 <td align="left">Yes</td>
 </tr>
+<tr>
+<td align="left">其中我们可以看到<code>onPause()</code>方法在Android3之后不再可被系统kill掉，也就是说，如果需要持久化用户数据以便后续使用或恢复状态，在<code>onPause()</code>中全部完成最为保险。</td>
+<td align="left"></td>
+<td align="left"></td>
+</tr>
 </tbody></table>
-<blockquote>
-<p>其中我们可以看到<code>onPause()</code>方法在Android3之后不再可被系统kill掉，也就是说，如果需要持久化用户数据以便后续使用或恢复状态，在<code>onPause()</code>中全部完成最为保险。 </p>
-</blockquote>
-<blockquote>
-<p>而自从Android P开始，用于保存临时数据的回调<code>onSaveInstanseState()</code>延迟到<code>onStop()</code>结束之后调用，这也就意味着在更晚的生命周期方法<code>onStop()</code>之后进行<strong>数据保存</strong>和<strong>完成fragment transaction</strong>也是安全的。</p>
-</blockquote>
+<p> 而自从Android P开始，用于保存临时数据的回调<code>onSaveInstanseState()</code>延迟到<code>onStop()</code>结束之后调用，这也就意味着在更晚的生命周期方法<code>onStop()</code>之后进行<strong>数据保存</strong>和<strong>完成fragment transaction</strong>也是安全的。</p>
 <h2 id="Configuration-Changes导致的生命周期变化"><a href="#Configuration-Changes导致的生命周期变化" class="headerlink" title="Configuration Changes导致的生命周期变化"></a>Configuration Changes导致的生命周期变化</h2><p>Configuration指的是由<code>Configuration</code>类所定义的属性。<br>当这个设置发生变化的时候，整个应用的UI都需要同步进行更新以适应新的配置。Activity拥有响应``configuration chages的回调。<br><code>Configuration Changes</code>包括如下一些情况:</p>
 <ul>
 <li>屏幕旋转</li>
 <li>变更语言</li>
 <li>其他一些情况<br>当出现<code>configuration changes</code>的时候会导致当前的activity通过正常的生命周期销毁。若果这个activity处于<code>visible</code>状态，则<code>onDestory()</code>执行完之后会立刻重建，<code>onCreate(Bundle)</code>中传入的<code>savedInstanceState</code>就由销毁之前的<code>onSaveInstanceState()</code>回调生成。</li>
 </ul>
-<p>应用中可以通过设置<code>android:configChanges</code>来避免因<code>configuration changes</code>导致的activity重建，此时会调用回调方法<code>onConfigurationChanged()</code>来适配。 </p>
-<blockquote>
-<p>注意:<br>若该变化影响到了配置之外的属性，则不会调用<code>onConfigurationChanged()</code>回调，会直接对activity进行重建。</p>
-</blockquote>
-<h2 id="ActivityResult影响生命周期"><a href="#ActivityResult影响生命周期" class="headerlink" title="ActivityResult影响生命周期"></a>ActivityResult影响生命周期</h2><p>一般情况下我们通过<code>startActivity()</code>方法启动一个activity，但我们需要被启动的activity返回一个结果给前一个activity时，就需要使用到<code>startActivityForResult()</code>方法。<br>当被启动的activity还存在时，就可以调用<code>setResult()</code>方法将结果返回给启动它的activity，而启动它的activity会调用到<code>onActivityResult()</code>方法接收数据。 </p>
-<blockquote>
-<p>需要注意的是<code>onActivityResult()</code>的调用是在整个activity生命周期之前的，也就是说调用顺序是<code>onActivityResult() -&gt; onRestart() -&gt; onStart() -&gt; onResume()</code></p>
-</blockquote>
+<p>应用中可以通过设置<code>android:configChanges</code>来避免因<code>configuration changes</code>导致的activity重建，此时会调用回调方法<code>onConfigurationChanged()</code>来适配。<br>注意:<br>若该变化影响到了配置之外的属性，则不会调用<code>onConfigurationChanged()</code>回调，会直接对activity进行重建。</p>
+<h2 id="ActivityResult影响生命周期"><a href="#ActivityResult影响生命周期" class="headerlink" title="ActivityResult影响生命周期"></a>ActivityResult影响生命周期</h2><p>一般情况下我们通过<code>startActivity()</code>方法启动一个activity，但我们需要被启动的activity返回一个结果给前一个activity时，就需要使用到<code>startActivityForResult()</code>方法。<br>当被启动的activity还存在时，就可以调用<code>setResult()</code>方法将结果返回给启动它的activity，而启动它的activity会调用到<code>onActivityResult()</code>方法接收数据。<br>需要注意的是<code>onActivityResult()</code>的调用是在整个activity生命周期之前的，也就是说调用顺序是<code>onActivityResult() -&gt; onRestart() -&gt; onStart() -&gt; onResume()</code></p>
 <h2 id="Activity进程生命周期"><a href="#Activity进程生命周期" class="headerlink" title="Activity进程生命周期"></a>Activity进程生命周期</h2><p>对于Android系统来说每个<code>application process</code>应该尽可能维持更长时间的存活，但实际上有很多时候都不得不杀死老进程来释放内存资源。系统决定销毁哪个<code>process</code>与它当前是否正在与用户进行交互是密切相关的。</p>
 <ul>
 <li>**Foreground Activity:**如果一个Activity在前台(位于栈顶)，则该activity的状态为<code>active</code>或<code>running</code>。这个状态的activity通常是正在与用户发生交互的。这种情况下如果不出现<code>OOM</code>系统不回去kill这个进程。</li>
@@ -181,7 +175,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://shiro-umi.github.io/2020/11/01/Android-Activity%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F/" data-id="ckh1fc8ic00012c8u4kke86wa" class="article-share-link">Share</a>
+      <a data-url="https://shiro-umi.github.io/2020/11/01/Android-Activity%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F/" data-id="ckh1fkgaq00007z8u8sbhfp6v" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Android-Activity/" rel="tag">Android Activity</a></li></ul>
