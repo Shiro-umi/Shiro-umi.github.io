@@ -167,6 +167,73 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://shiro-umi.github.io/2020/11/09/%E5%86%85%E5%AD%98%E6%B3%84%E6%BC%8F%E5%92%8C%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Shiro-umi">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ShiroUmi">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/11/09/%E5%86%85%E5%AD%98%E6%B3%84%E6%BC%8F%E5%92%8C%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6/" class="post-title-link" itemprop="url">内存泄漏和垃圾回收</a>
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2020-11-09 11:20:19 / 修改时间：11:24:22" itemprop="dateCreated datePublished" datetime="2020-11-09T11:20:19+08:00">2020-11-09</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="什么是内存泄漏"><a href="#什么是内存泄漏" class="headerlink" title="什么是内存泄漏"></a>什么是内存泄漏</h1><p>内存泄漏顾名思义，就是本应该被回收的无用资源并没有被正确的回收而导致内存的浪费。想搞清楚到底是什么原因导致这些资源没有被回收就需要对JVM的内存模型，以及JVM的垃圾回收机制有一定的了解。</p>
+<h1 id="JVM内存模型"><a href="#JVM内存模型" class="headerlink" title="JVM内存模型"></a>JVM内存模型</h1><p>在JVM中主要分为<code>类加载器</code>，<code>内存区域(运行时数据区)</code>，<code>执行引擎</code>，<code>本地库接口</code>和<code>本地方法库</code>。我们探究JVM的内存模型以及内存泄漏，这一部分的原理基本都在<code>内存区域中</code>。<br>我们先来看一下这个<code>运行时数据区</code>长什么样：</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2020/11/09/%E5%86%85%E5%AD%98%E6%B3%84%E6%BC%8F%E5%92%8C%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="https://shiro-umi.github.io/2020/11/03/Android-Activity%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B%E5%88%86%E6%9E%90/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -190,10 +257,16 @@
                 <i class="fa fa-calendar-o"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
-              
 
-              <time title="创建时间：2020-11-03 11:52:14 / 修改时间：12:06:30" itemprop="dateCreated datePublished" datetime="2020-11-03T11:52:14+08:00">2020-11-03</time>
+              <time title="创建时间：2020-11-03 11:52:14" itemprop="dateCreated datePublished" datetime="2020-11-03T11:52:14+08:00">2020-11-03</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-11-05 21:11:25" itemprop="dateModified" datetime="2020-11-05T21:11:25+08:00">2020-11-05</time>
+              </span>
 
           
 
@@ -208,7 +281,23 @@
       
           <p>如果能搞清楚activity的启动流程，再遇到一些疑难杂症或者因系统版本导致的差异时，就可以提供更多的思路。<br>要研究activity的启动流程就要从最常用的<code>startActivity()</code>方法的源码入手分析,先贴上关键代码:</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">startActivity</span><span class="params">(Intent intent)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">this</span>.startActivity(intent, <span class="keyword">null</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">startActivity</span><span class="params">(Intent intent, <span class="meta">@Nullable</span> Bundle options)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    ...<span class="comment">//对intent进行处理</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> (options != <span class="keyword">null</span>) &#123;</span><br><span class="line">        startActivityForResult(intent, -<span class="number">1</span>, options);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        startActivityForResult(intent, -<span class="number">1</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>可以看到</p>
+<p>可以看到两个<code>startActivity()</code>方法都会调用到<code>startActivityForResult()</code>方法来启动activity，所以接下来可以直接看到<code>startActivityForResult()</code>方法的源码: </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">startActivityForResult</span><span class="params">(<span class="meta">@RequiresPermission</span> Intent intent, <span class="keyword">int</span> requestCode,</span></span></span><br><span class="line"><span class="function"><span class="params">        <span class="meta">@Nullable</span> Bundle options)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (mParent == <span class="keyword">null</span>) &#123;</span><br><span class="line">        options = transferSpringboardActivityOptions(options);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 在这里真正去执行新activity的启动工作，得到一个ActivityResult作为返回值</span></span><br><span class="line">        Instrumentation.ActivityResult ar =</span><br><span class="line">            mInstrumentation.execStartActivity(</span><br><span class="line">                <span class="keyword">this</span>, mMainThread.getApplicationThread(), mToken, <span class="keyword">this</span>,</span><br><span class="line">                intent, requestCode, options);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 若返ActivityResult不为空，则通过ActivityThread向AMS告知下一步行动</span></span><br><span class="line">        <span class="keyword">if</span> (ar != <span class="keyword">null</span>) &#123;</span><br><span class="line">            mMainThread.sendActivityResult(</span><br><span class="line">                mToken, mEmbeddedID, requestCode, ar.getResultCode(),</span><br><span class="line">                ar.getResultData());</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (requestCode &gt;= <span class="number">0</span>) &#123;</span><br><span class="line">            mStartedActivity = <span class="keyword">true</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        cancelInputsAndStartExitTransition(options);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 这一部分最后依旧会调用到Instrumentation.execStartActivity()方法</span></span><br><span class="line">        <span class="keyword">if</span> (options != <span class="keyword">null</span>) &#123;</span><br><span class="line">            mParent.startActivityFromChild(<span class="keyword">this</span>, intent, requestCode, options);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            mParent.startActivityFromChild(<span class="keyword">this</span>, intent, requestCode);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>顺便说一说这里的一些变量:</p>
+<ul>
+<li><code>mParent</code>是一个activity实例</li>
+<li><code>mInstrumentation</code>是一个<code>Instrumentation</code>实例，单词翻译成中文可以理解为仪表盘，实际上也确实起到了仪表盘的作用。在Android系统中application,activity都是由这个instrumentation创建的，生命周期的回调也是由这个实例来完成的。通过这个对象去调用activity的生命周期，可以在处理生命周期的同时通知其他与activity生命周期有关的组件或者对象作出相应的动作，是一种观察者模式。</li>
+<li><code>mMainThread</code>是一个<code>ActivityThread</code>实例，用于管理在<code>application process</code>中的嗦有activity，broadcast和其他<code>ActivityManager</code>请求的操作。</li>
+<li><code>mToken</code>是一个<code>IBinder</code>实例。在Android系统中，所有应用的activity都由系统服务AMS(Activity Manager Service)统一管理，AMS是一个单独的进程，而应用中的activity也一定运行在一个进程中，所以binder作为跨进程的一种手段非常适合用来作为token标识一个activity。</li>
+</ul>
+<p>然后再来看上面这段代码，可以发现心在启动的时候调用到了<code>Instrumentation.execStartActivity()</code>方法去真正执行activity的启动工作，并返回一<code>个Instrumentation.ActivityResult</code>对象。若这个对象不为空，则会调用到<code>ActivityThread.sendActivityResult()</code>通知<code>AMS</code>需要调用<code>onActivityResult()</code>。若当<code>mParent</code>不为空的时候调用<code>startActivityFromChild()</code>方法，内部其实最终也会调用到<code>Instrumentation.execStartActivity()</code>。</p>
+<p>所以跟着来到<code>Instrumentation.execStartActivity()</code>方法：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> ActivityResult <span class="title">execStartActivity</span><span class="params">(</span></span></span><br><span class="line"><span class="function"><span class="params">            Context who, IBinder contextThread, IBinder token, Activity target,</span></span></span><br><span class="line"><span class="function"><span class="params">            Intent intent, <span class="keyword">int</span> requestCode, Bundle options)</span> </span>&#123;</span><br><span class="line">        IApplicationThread whoThread = (IApplicationThread) contextThread;</span><br><span class="line">        </span><br><span class="line">        ...</span><br><span class="line"></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            intent.migrateExtraStreamToClipData(who);</span><br><span class="line">            intent.prepareToLeaveProcess(who);</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 这里最终调用到了ActivityTaskManager.getService().startActivity()</span></span><br><span class="line">            <span class="keyword">int</span> result = ActivityTaskManager.getService().startActivity(whoThread,</span><br><span class="line">                    who.getBasePackageName(), who.getAttributionTag(), intent,</span><br><span class="line">                    intent.resolveTypeIfNeeded(who.getContentResolver()), token,</span><br><span class="line">                    target != <span class="keyword">null</span> ? target.mEmbeddedID : <span class="keyword">null</span>, requestCode, <span class="number">0</span>, <span class="keyword">null</span>, options);</span><br><span class="line">            </span><br><span class="line">            ...</span><br><span class="line"></span><br><span class="line">        &#125; <span class="keyword">catch</span> (RemoteException e) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> RuntimeException(<span class="string">&quot;Failure from system&quot;</span>, e);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p>去除掉一些对整个流程不构成影响的代码，可以发现这个方法的结构变得非常简单，只是调用到了<code>ActivityTaskManager.getService().startActivity()</code>来启动一个activity。但是在源码中这个<code>startActivity()</code>方法是红色的，没有办法直接点进去，所以需要找一下<code>ActivityTaskManager.getService()</code>到底是什么东西，先跟着追踪进去:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> IActivityTaskManager <span class="title">getService</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> IActivityTaskManagerSingleton.get();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> Singleton&lt;IActivityTaskManager&gt; IActivityTaskManagerSingleton =</span><br><span class="line">    <span class="keyword">new</span> Singleton&lt;IActivityTaskManager&gt;() &#123;</span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">protected</span> IActivityTaskManager <span class="title">create</span><span class="params">()</span> </span>&#123;</span><br><span class="line">            <span class="keyword">final</span> IBinder b = ServiceManager.getService(Context.ACTIVITY_TASK_SERVICE);</span><br><span class="line">            <span class="keyword">return</span> IActivityTaskManager.Stub.asInterface(b);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;;</span><br></pre></td></tr></table></figure>
+<p>追踪下来发现这里的<code>getService()</code>返回了一个<code>Singleton&lt;IActivityTaskManager&gt;</code>类型，但<code>IActivityTaskManager</code>这个东西又是红的，</p>
 
       
     </div>
@@ -333,7 +422,7 @@
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-11-03 17:40:57" itemprop="dateModified" datetime="2020-11-03T17:40:57+08:00">2020-11-03</time>
+                <time title="修改时间：2020-11-03 20:05:44" itemprop="dateModified" datetime="2020-11-03T20:05:44+08:00">2020-11-03</time>
               </span>
 
           
@@ -417,7 +506,7 @@
 </tbody></table>
 <p>仔细观察可以发现除了较为特殊的<code>boolean</code>和<code>char</code>之外，其余的类型按占空间从小到大排列，占用控件为：</p>
 <p>$2^8$ -&gt; $2^{16}$ -&gt; $2^{32}$ -&gt; $2^{64}$</p>
-<p>对于<code>char</code>，在java中无论要表示哪种字符，一个<code>char</code>一定占用<code>2bytes</code>，因为在java中使用<code>Unicode字符集</code>进行<code>utf-16</code>可变长编码，而<code>utf-16</code>形如:<code>u\8D63</code>，可以看到一个<code>utf-16</code>字符占用了4个十六进制数，而$2^4 =16$，且2为二进制中的一个bit（一位），所以上述<code>utf-16</code>字符共占用了16bits，又因为前面提到的<code>1byte = 8bits</code>，所以一个<code>char</code>只会占用<code>2bytes</code>的空间</p>
+<p>对于<code>char</code>，在java中无论要表示哪种字符，一个<code>char</code>一定占用<code>2bytes</code>，因为在java中使用<code>Unicode字符集</code>进行<code>utf-16</code>可变长编码，而<code>utf-16</code>形如:<code>u\8D63</code>，可以看到一个<code>utf-16</code>字符占用了4个十六进制数，所以一个<code>char</code>只会占用<code>2bytes</code>的空间</p>
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2020/10/18/Java_%E5%9F%BA%E6%9C%AC%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B-%E4%BA%8C%E8%BF%9B%E5%88%B6%E8%A1%A8%E7%A4%BA/#more" rel="contents">
@@ -485,12 +574,12 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">3</span>
+          <span class="site-state-item-count">4</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
-        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-count">3</span>
         <span class="site-state-item-name">标签</span>
       </div>
   </nav>

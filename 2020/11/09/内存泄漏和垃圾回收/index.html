@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    hostname: new URL('https://shiro-umi.github.io').hostname,
+    root: '/',
+    scheme: 'Muse',
+    version: '7.6.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}
+  };
+</script>
+
+  <meta name="description" content="什么是内存泄漏内存泄漏顾名思义，就是本应该被回收的无用资源并没有被正确的回收而导致内存的浪费。想搞清楚到底是什么原因导致这些资源没有被回收就需要对JVM的内存模型，以及JVM的垃圾回收机制有一定的了解。 JVM内存模型在JVM中主要分为类加载器，内存区域(运行时数据区)，执行引擎，本地库接口和本地方法库。我们探究JVM的内存模型以及内存泄漏，这一部分的原理基本都在内存区域中。我们先来看一下这个运行">
+<meta property="og:type" content="article">
+<meta property="og:title" content="内存泄漏和垃圾回收">
+<meta property="og:url" content="https://shiro-umi.github.io/2020/11/09/%E5%86%85%E5%AD%98%E6%B3%84%E6%BC%8F%E5%92%8C%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6/index.html">
+<meta property="og:site_name" content="ShiroUmi">
+<meta property="og:description" content="什么是内存泄漏内存泄漏顾名思义，就是本应该被回收的无用资源并没有被正确的回收而导致内存的浪费。想搞清楚到底是什么原因导致这些资源没有被回收就需要对JVM的内存模型，以及JVM的垃圾回收机制有一定的了解。 JVM内存模型在JVM中主要分为类加载器，内存区域(运行时数据区)，执行引擎，本地库接口和本地方法库。我们探究JVM的内存模型以及内存泄漏，这一部分的原理基本都在内存区域中。我们先来看一下这个运行">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://shiro-umi.github.io/2020/11/09/%E5%86%85%E5%AD%98%E6%B3%84%E6%BC%8F%E5%92%8C%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6/runtime_data_area.png">
+<meta property="og:image" content="https://shiro-umi.github.io/2020/11/09/%E5%86%85%E5%AD%98%E6%B3%84%E6%BC%8F%E5%92%8C%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6/reachable.png">
+<meta property="og:image" content="https://shiro-umi.github.io/2020/11/09/%E5%86%85%E5%AD%98%E6%B3%84%E6%BC%8F%E5%92%8C%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6/recycle_1.png">
+<meta property="og:image" content="https://shiro-umi.github.io/2020/11/09/%E5%86%85%E5%AD%98%E6%B3%84%E6%BC%8F%E5%92%8C%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6/recycle_2.png">
+<meta property="og:image" content="https://shiro-umi.github.io/2020/11/09/%E5%86%85%E5%AD%98%E6%B3%84%E6%BC%8F%E5%92%8C%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6/recycle_3.png">
+<meta property="article:published_time" content="2020-11-09T03:20:19.000Z">
+<meta property="article:modified_time" content="2020-11-09T03:24:22.585Z">
+<meta property="article:author" content="Shiro-umi">
+<meta property="article:tag" content="JVM, 内存泄漏, 垃圾回收">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://shiro-umi.github.io/2020/11/09/%E5%86%85%E5%AD%98%E6%B3%84%E6%BC%8F%E5%92%8C%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6/runtime_data_area.png">
+
+<link rel="canonical" href="https://shiro-umi.github.io/2020/11/09/%E5%86%85%E5%AD%98%E6%B3%84%E6%BC%8F%E5%92%8C%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>内存泄漏和垃圾回收 | ShiroUmi</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">ShiroUmi</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <p class="site-subtitle">三流码奴的自我救赎</p>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://shiro-umi.github.io/2020/11/09/%E5%86%85%E5%AD%98%E6%B3%84%E6%BC%8F%E5%92%8C%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Shiro-umi">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ShiroUmi">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          内存泄漏和垃圾回收
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2020-11-09 11:20:19 / 修改时间：11:24:22" itemprop="dateCreated datePublished" datetime="2020-11-09T11:20:19+08:00">2020-11-09</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="什么是内存泄漏"><a href="#什么是内存泄漏" class="headerlink" title="什么是内存泄漏"></a>什么是内存泄漏</h1><p>内存泄漏顾名思义，就是本应该被回收的无用资源并没有被正确的回收而导致内存的浪费。想搞清楚到底是什么原因导致这些资源没有被回收就需要对JVM的内存模型，以及JVM的垃圾回收机制有一定的了解。</p>
+<h1 id="JVM内存模型"><a href="#JVM内存模型" class="headerlink" title="JVM内存模型"></a>JVM内存模型</h1><p>在JVM中主要分为<code>类加载器</code>，<code>内存区域(运行时数据区)</code>，<code>执行引擎</code>，<code>本地库接口</code>和<code>本地方法库</code>。我们探究JVM的内存模型以及内存泄漏，这一部分的原理基本都在<code>内存区域中</code>。<br>我们先来看一下这个<code>运行时数据区</code>长什么样：</p>
+<a id="more"></a>
+<p><img src="runtime_data_area.png" alt="runtime_data_area"><br>从图中我们可以看到，在整个内存区域中一共分为两大部分：</p>
+<ul>
+<li>线程共享区域</li>
+<li>线程私有区域</li>
+</ul>
+<h2 id="线程共享区域内存划分及用途"><a href="#线程共享区域内存划分及用途" class="headerlink" title="线程共享区域内存划分及用途"></a>线程共享区域内存划分及用途</h2><p>线程功能共享区域基本可以划分为两个主要区域：</p>
+<ul>
+<li>方法区内存</li>
+<li>堆内存</li>
+</ul>
+<p><code>方法区内存</code>负责存放一些静态成员，以及一些类信息和方法信息，主要由5部分构成：</p>
+<ul>
+<li>常量池：通过<code>static final</code>或<code>String</code>字段定义的常量</li>
+<li>静态变量：通过<code>static</code>定义的静态变量</li>
+<li>类信息：已经被加载的<code>class</code>信息</li>
+<li>方法信息：已经被加载的<code>method</code>信息</li>
+<li>其他</li>
+</ul>
+<p><code>堆内存</code>则接管所有通过<code>new</code>关键字生成的对象，主要由2部分构成：</p>
+<ul>
+<li>新生代：基本所有新生成的对象都会进入新生代，但在一些特殊情况下会直接存入老年代<code>(新生代内存容量不够或超过设定阈值)</code></li>
+<li>老年代：经过数次GC还未被回收的变量会进入老年代，减少对其进行GC的次数</li>
+</ul>
+<p>其中<code>新生代</code>又被分为3部分：</p>
+<ul>
+<li>Elden区</li>
+<li>S0区</li>
+<li>S1区</li>
+</ul>
+<p>这一部分主要为了GC机制设计，后面说到GC过程的时候会详细解释</p>
+<h2 id="线程私有区域内存划分及用途"><a href="#线程私有区域内存划分及用途" class="headerlink" title="线程私有区域内存划分及用途"></a>线程私有区域内存划分及用途</h2><p>线程私有区域主要由3部分构成：</p>
+<ul>
+<li>本地方法栈：用于处理native方法的运行栈，与主题关系不大</li>
+<li>程序计数器(PC寄存器)：在多线程环境下，多个线程需要共同竞争CPU资源来运行，也就是说在进行运算的时候随时可能因为CPU将资源分配给了其他线程而导致中断，<code>程序计数器</code>存在的目的就是为了保证在线程重新获得CPU资源的时候，可以定位到上一次停下的位置，恢复工作状态</li>
+<li>虚拟机栈(JVM栈)：对于单一线程运行来说最关键的区域，用于记录单一线程运行需要的变量信息和状态信息</li>
+</ul>
+<h3 id="虚拟机栈"><a href="#虚拟机栈" class="headerlink" title="虚拟机栈"></a>虚拟机栈</h3><p>虚拟机栈的内容由许多<code>栈帧</code>构成。其中我们每在线程内调用一个方法，都会有一个新的<code>栈帧</code>被压入虚拟机栈。<br>考虑以下例子：</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"># kotlin</span><br><span class="line"><span class="function"><span class="keyword">fun</span> <span class="title">a</span><span class="params">()</span></span>&#123;</span><br><span class="line">    b()</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">fun</span> <span class="title">b</span><span class="params">()</span></span> &#123;</span><br><span class="line">    <span class="keyword">return</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">fun</span> <span class="title">main</span><span class="params">(args: <span class="type">Array</span>&lt;<span class="type">String</span>&gt;)</span></span> &#123;</span><br><span class="line">    a()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在上面这段代码中，我们在<code>main()</code>方法中调用了<code>a()</code>，而<code>a()</code>的内部调用了<code>b()</code>方法，最终在<code>b()</code>中return<br>根据上面对于<code>虚拟机栈</code>和<code>栈帧</code>的描述我们可以知道：</p>
+<ul>
+<li>在调用<code>main()</code>方法的时候，<code>frame_m</code>被压入虚拟机栈</li>
+<li><code>main()</code>方法中调用<code>a()</code>方法，则<code>frame_a</code>被压入虚拟机栈，此时虚拟机栈中有2个<code>栈帧</code>： <code>frame_m</code> &lt;- <code>frame_a</code></li>
+<li><code>a()</code>方法中调用了<code>b()</code>方法，则<code>frame_b</code>被压入虚拟机栈，此时虚拟机栈中有3个<code>栈帧</code> ：<code>frame_m</code> &lt;- <code>frame_a</code> &lt;- <code>frame_b</code></li>
+<li>当<code>b()</code>方法中的<code>return</code>执行时，<code>frame_b</code>被弹出，此时虚拟机栈中剩余2个<code>栈帧</code>： <code>frame_m</code> &lt;- <code>frame_a</code></li>
+<li>此时<code>a()</code>方法执行完毕，<code>frame_a</code>被弹出，此时虚拟机栈中剩余1个<code>栈帧</code>： <code>frame_m</code></li>
+<li>最后<code>main()</code>方法执行完毕，<code>frame_m</code>被弹出，虚拟机栈清空</li>
+</ul>
+<p>每个<code>栈帧</code>都包含了当前方法在运行时需要保存的信息：</p>
+<ul>
+<li>局部变量表：保存当前方法中用到的局部变量的<code>引用</code>，指向<code>堆区</code>的对象</li>
+<li>操作数栈：如果对计算机体系结构有所了解的话应该不难理解，操作数栈用来对实际的操作数进行<code>运算</code></li>
+<li>动态链接：每个JVM虚拟机内存都是有限的，所以不可能做到将所有<code>类</code>全部加载到内存区域中，所以相对于静态变量及方法的加载，<code>动态链接</code>主要用于在运行过程中动态地加载类信息</li>
+<li>方法返回地址：这一部分和<code>程序计数器</code>较为相似，因为每个<code>栈帧</code>都对应一个方法，参考上面的例子，<code>b()</code>方法执行完毕后需要返回到<code>a()</code>方法中继续运行下去，<code>方法返回地址</code>的作用就是用来记录方法跳转前的运行位置，以便恢复工作状态</li>
+</ul>
+<h1 id="垃圾回收-GC-机制-amp-内存泄漏"><a href="#垃圾回收-GC-机制-amp-内存泄漏" class="headerlink" title="垃圾回收(GC)机制 &amp; 内存泄漏"></a>垃圾回收(GC)机制 &amp; 内存泄漏</h1><p>探究垃圾回收机制是搞明白内存泄漏原因其中的重要一步<br>GC一共分为两部分：</p>
+<ul>
+<li>标记：先通过一套<code>垃圾标记算法</code>将所有需要被GC的对象做好标记，方便<code>垃圾回收算法</code>回收垃圾</li>
+<li>回收：真正将垃圾对象回收掉，并释放资源，并整理内存</li>
+</ul>
+<h2 id="垃圾标记算法"><a href="#垃圾标记算法" class="headerlink" title="垃圾标记算法"></a>垃圾标记算法</h2><p>经典的垃圾标记算法一共只有两种：</p>
+<ul>
+<li>引用计数法</li>
+<li>可达性分析法</li>
+</ul>
+<h3 id="引用计数法"><a href="#引用计数法" class="headerlink" title="引用计数法"></a>引用计数法</h3><p>这个其实比较好理解，所谓引用计数法就是，一个对象每新增一个引用，就<code>+1计数</code>，每减少一个引用，就<code>-1计数</code>，若该对象的<code>引用计数</code>最终为<code>0</code>则将该对象回收掉。<br>这个方法现在基本已经推出历史舞台了，因为它看上去简单有效，其实存在着一个很大的问题，来看如下一段代码：</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">A</span> </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> a: A? = <span class="literal">null</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">fun</span> <span class="title">main</span><span class="params">(args: <span class="type">Array</span>&lt;<span class="type">String</span>&gt;)</span></span> &#123;</span><br><span class="line">    <span class="keyword">val</span> x = A()</span><br><span class="line">    <span class="keyword">val</span> y = A()</span><br><span class="line">    x.a = y</span><br><span class="line">    y.a = x</span><br><span class="line"></span><br><span class="line">    x = <span class="literal">null</span></span><br><span class="line">    y = <span class="literal">null</span></span><br><span class="line">    gc()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>下面来分析一下上面这段代码的执行过程：</p>
+<ul>
+<li>创建对象<code>x:A</code>，<code>x</code>引用计数<code>+1</code>，<code>x -&gt; 1</code></li>
+<li>创建对象<code>y:A</code>，<code>y</code>引用计数<code>+1</code>，<code>y -&gt; 1</code></li>
+<li><code>x.a</code>赋值为<code>y</code>，<code>y</code>引用计数<code>+1</code>，<code>y -&gt; 2</code></li>
+<li><code>y.a</code>赋值为<code>x</code>，<code>x</code>引用计数<code>+1</code>，<code>x -&gt; 2</code></li>
+<li><code>x</code>置空，<code>x</code>引用计数<code>-1</code>，<code>x -&gt; 1</code></li>
+<li><code>y</code>置空，<code>y</code>引用计数<code>-1</code>，<code>y -&gt; 1</code></li>
+<li>执行<code>gc()</code></li>
+</ul>
+<p>通过上面的分析我们发现，虽然我们将可见的引用都进行了置空，但最终执行GC的时候<code>x</code>和<code>y</code>的引用计数均不为<code>0</code>，所以这种情况下引用计数算法并不能完全回收掉所有应该回收的对象，从而造成了<code>内存泄漏</code></p>
+<h3 id="可达性分析法"><a href="#可达性分析法" class="headerlink" title="可达性分析法"></a>可达性分析法</h3><p>这一种标记算法在目前使用的非常广泛。其根本思想是，将所有的对象引用关系看作是一个<code>图</code>，看后<code>跟踪引用链</code>，若一个对象的和<code>根节点(GC Root)</code>之间不可达，也就是说该对象不存在引用，则该对象被定义为垃圾，需要被回收<br>其机制如下图所示：<br><img src="reachable.png" alt="reachable"> </p>
+<p>到这里会发现在这一套算法中，一切的判别标准都与<code>GC Root</code>有关。也就是说如果有一个对象对程序运行不再有用，但是仍然存在一个它和<code>GC Root</code>之间依旧可达，这个时候就发生了内存泄漏。<br>根据上面的描述我们可以看出，<code>GC Root</code>的生命周期一定会比泄漏掉的对象的生命周期要长，这样才会存在引用关系，如果<code>GC Root</code>的生命周期已经结束，它就无法继续引用其他对象，也就不存在内存泄漏的问题了<br>所以在这里可以总结一条结论：<code>内存泄漏是由长生命周期对象引用短生命周期对象引起的</code><br>那么哪些对象会成为<code>GC Root</code>呢？</p>
+<ul>
+<li><code>虚拟机栈中正在引用的对象</code>：前面提到过，虚拟机栈的栈帧中存在这局部变量表，它里面的引用会指向堆内存中的一个对象</li>
+<li><code>本地方法栈中正在引用的对象</code>：类似虚拟机栈的情况，不多赘述</li>
+<li><code>静态属性对象</code>：静态属性对象生命周期非常长，若持有其他短生命周期对象则会导致短生命周期对象不能及时释放，造成内存泄漏</li>
+<li><code>方法区常量对象</code>：类似静态属性对象，不多赘述</li>
+</ul>
+<h2 id="垃圾回收算法"><a href="#垃圾回收算法" class="headerlink" title="垃圾回收算法"></a>垃圾回收算法</h2><p>垃圾回收算法有很多种，经过一系列的演变，现在已经发展得相对最初而言比较复杂了</p>
+<h3 id="标记清除算法"><a href="#标记清除算法" class="headerlink" title="标记清除算法"></a>标记清除算法</h3><p>这种算法非常简单，经由前面讲到的标记算法，简单地将被标记为垃圾的对象回收掉。标记清除算法效率比较高，但是有一个非常致命的缺陷，如下图所示<br><img src="recycle_1.png" alt="标记清除算法"><br>从图中可以发现，虽然所有需要被回收的对象都已经回收掉了，但是留下的内存空间变得非常零散，如果这个时候需要申请一个较大的需要连续内存空间的对象，虽然内存容量还够，但是也不能成功的创建 </p>
+<h3 id="复制清除算法"><a href="#复制清除算法" class="headerlink" title="复制清除算法"></a>复制清除算法</h3><p>这种方法也比较暴力，简单地将内存一分为二，在回收无用对象的同时，将仍然在使用中的对象直接按顺序copy到另外一半内存中，使得空余可用内存一直是连续的状态<br><img src="recycle_2.png" alt="复制清除算法"><br>这种方式存在一个很明显的问题，那就是可用内存空间被限制在了内存总量的一半，这个资源损耗还是非常大的 </p>
+<h3 id="分代收集算法"><a href="#分代收集算法" class="headerlink" title="分代收集算法"></a>分代收集算法</h3><p>这种方法非常经典，也非常通用。利用生存时间给对象划分存活区域，分别按照不同的周期进行GC，其中<code>Elden</code>，<code>S0</code>，<code>S1</code>统称<code>新生代</code>，剩下的内存区域被称为<code>老年代</code><br><img src="recycle_3.png" alt="分代收集算法"><br>如图中所表示，分代收集算法主要有如下几条规则： </p>
+<ul>
+<li>所有新创建的对象都从<code>Elden</code>区域创建</li>
+<li>其中<code>S0</code>和<code>S1</code>区域类似<code>复制清除</code>算法，永远保证其中一块区域是干净，连续的 </li>
+<li>每次触发GC的时候，将<code>Elden</code>和正在使用的<code>S区</code>中的垃圾对象回收，并将两块区域中所有的存活对象copy到另一块干净的<code>S区</code>中，所有存活对象存活计数+1</li>
+<li>若有一些存活对象的存活计数大于一个阈值(图中红色块)，则在GC后这些对象将被转移至<code>老年代</code>，减少对其执行GC的次数以提升性能</li>
+<li>若创建一些对象时，该对象需要的容量大于一定阈值，则直接将它移动到<code>老年代</code></li>
+<li>若创建一些对象时<code>Elden</code>区内存资源不足，则会向<code>老年代</code>借用一部分内存资源，这样一来这个对象也是被存放在<code>老年代</code>的 </li>
+</ul>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>就目前最经常接触的垃圾回收机制来说，基本都离不开<code>可达性分析标记法</code>和<code>分代收集法</code><br>基于<code>可达性分析标记法</code>去标记内存垃圾的情况下，出现<code>内存泄漏</code>的直接原因就是<code>长生命周期对象引用短生命周期对象，导致短生命周期对象无法被释放，在长生命周期对象的生命周期内造成内存泄漏</code> </p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/JVM-%E5%86%85%E5%AD%98%E6%B3%84%E6%BC%8F-%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6/" rel="tag"># JVM, 内存泄漏, 垃圾回收</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/11/03/Android-Activity%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B%E5%88%86%E6%9E%90/" rel="prev" title="Android_Activity启动流程分析">
+      <i class="fa fa-chevron-left"></i> Android_Activity启动流程分析
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF%E5%86%85%E5%AD%98%E6%B3%84%E6%BC%8F"><span class="nav-number">1.</span> <span class="nav-text">什么是内存泄漏</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#JVM%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B"><span class="nav-number">2.</span> <span class="nav-text">JVM内存模型</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BA%BF%E7%A8%8B%E5%85%B1%E4%BA%AB%E5%8C%BA%E5%9F%9F%E5%86%85%E5%AD%98%E5%88%92%E5%88%86%E5%8F%8A%E7%94%A8%E9%80%94"><span class="nav-number">2.1.</span> <span class="nav-text">线程共享区域内存划分及用途</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BA%BF%E7%A8%8B%E7%A7%81%E6%9C%89%E5%8C%BA%E5%9F%9F%E5%86%85%E5%AD%98%E5%88%92%E5%88%86%E5%8F%8A%E7%94%A8%E9%80%94"><span class="nav-number">2.2.</span> <span class="nav-text">线程私有区域内存划分及用途</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%99%9A%E6%8B%9F%E6%9C%BA%E6%A0%88"><span class="nav-number">2.2.1.</span> <span class="nav-text">虚拟机栈</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6-GC-%E6%9C%BA%E5%88%B6-amp-%E5%86%85%E5%AD%98%E6%B3%84%E6%BC%8F"><span class="nav-number">3.</span> <span class="nav-text">垃圾回收(GC)机制 &amp; 内存泄漏</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9E%83%E5%9C%BE%E6%A0%87%E8%AE%B0%E7%AE%97%E6%B3%95"><span class="nav-number">3.1.</span> <span class="nav-text">垃圾标记算法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BC%95%E7%94%A8%E8%AE%A1%E6%95%B0%E6%B3%95"><span class="nav-number">3.1.1.</span> <span class="nav-text">引用计数法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%AF%E8%BE%BE%E6%80%A7%E5%88%86%E6%9E%90%E6%B3%95"><span class="nav-number">3.1.2.</span> <span class="nav-text">可达性分析法</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%E7%AE%97%E6%B3%95"><span class="nav-number">3.2.</span> <span class="nav-text">垃圾回收算法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A0%87%E8%AE%B0%E6%B8%85%E9%99%A4%E7%AE%97%E6%B3%95"><span class="nav-number">3.2.1.</span> <span class="nav-text">标记清除算法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A4%8D%E5%88%B6%E6%B8%85%E9%99%A4%E7%AE%97%E6%B3%95"><span class="nav-number">3.2.2.</span> <span class="nav-text">复制清除算法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%86%E4%BB%A3%E6%94%B6%E9%9B%86%E7%AE%97%E6%B3%95"><span class="nav-number">3.2.3.</span> <span class="nav-text">分代收集算法</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">4.</span> <span class="nav-text">总结</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Shiro-umi</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">4</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Shiro-umi</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v5.2.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">主题 – <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> v7.6.0
+  </div>
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
