@@ -167,6 +167,80 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://shiro-umi.github.io/2020/12/07/ThreadPoolExecutor/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Shiro-umi">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ShiroUmi">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/12/07/ThreadPoolExecutor/" class="post-title-link" itemprop="url">保姆级ThreadPoolExecutor分析</a>
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2020-12-07 20:42:57 / 修改时间：20:48:00" itemprop="dateCreated datePublished" datetime="2020-12-07T20:42:57+08:00">2020-12-07</time>
+            </span>
+
+          
+            <span id="/2020/12/07/ThreadPoolExecutor/" class="post-meta-item leancloud_visitors" data-flag-title="保姆级ThreadPoolExecutor分析" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="池化"><a href="#池化" class="headerlink" title="池化"></a>池化</h1><p>如果一个对象需要多次使用，并且会同时存在很多个的情况下，如果每个都去重新创建会浪费非常多的性能。<br>这个时候就需要池化技术来帮助减小多次重新创建的负担。<br>池化技术的主要目的就是为了减少<code>大量</code>的创建操作导致性能损耗，通过一个<code>对象池</code>来提供复用对象。 </p>
+<h1 id="为什么需要线程池"><a href="#为什么需要线程池" class="headerlink" title="为什么需要线程池"></a>为什么需要线程池</h1><p>线程池是经常使用的线程池化工具。<br>如果不使用线程池的话，每发生一个请求都需要创建一个新的线程，但如果并发请求的量非常大
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2020/12/07/ThreadPoolExecutor/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="https://shiro-umi.github.io/2020/12/03/ThreadLocal/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -585,7 +659,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">4</span>
+          <span class="site-state-item-count">5</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
